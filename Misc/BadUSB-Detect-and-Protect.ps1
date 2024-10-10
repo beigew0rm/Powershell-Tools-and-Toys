@@ -117,7 +117,7 @@ public static extern int ToUnicode(uint wVirtKey, uint wScanCode, byte[] lpkeyst
             $keypressCount = 0
             $initTime = Get-Date
             while ($MonitorTime -lt $initTime.AddSeconds(60)) {
-                "Monitor Active for 60 seconds." | Out-File -FilePath "$env:TEMP\usblogs\log.log" -Append 
+                "Monitor Active." | Out-File -FilePath "$env:TEMP\usblogs\log.log" -Append 
                 $stopjob = Get-Content "$env:TEMP\usblogs\monon.log"
                 if ($stopjob -eq 'true'){"Restarting Monitor (New Device Detected)" | Out-File -FilePath "$env:TEMP\usblogs\log.log" -Append ;exit}
                 $MonitorTime = Get-Date
